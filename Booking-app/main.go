@@ -13,7 +13,7 @@ func main() {
 
 	var userName string
 	var userTickets int
-	//ask user to enter their name
+	//ask the  user to enter their name
 
 	userName = "tom"
 	userTickets = 2
