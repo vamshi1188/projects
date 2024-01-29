@@ -59,7 +59,7 @@ func main() {
 			}
 
 		} else {
-			fmt.Println("your input data is invalid , try again ")
+			fmt.Println("your input data is invalid , try again")
 
 		}
 
