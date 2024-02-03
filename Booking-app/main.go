@@ -59,12 +59,18 @@ func main() {
 			}
 
 		} else {
-			fmt.Println("your input data is invalid , try again")
+			if !isValidname {
+				fmt.Println("first name or last name you entered is too short")
+			}
+			if !isValidemail {
+				fmt.Println("email address you entered doesn't contain @ sign")
+			}
+			if !isValidticketnumber {
+				fmt.Println(" number of tickets you entered is invalid")
+			}
 
 		}
 
 	}
-
-	fmt.Print("thank you %v %v for booking %v tickets.You will receive confermation mail at %v")
 
 }
