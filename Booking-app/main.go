@@ -39,7 +39,7 @@ func main() {
 				fmt.Println("first name or last name you entered is too short")
 			}
 			if !isValidemail {
-				fmt.Println("email address you entered doesn't contain @ sign")
+				fmt.Println("email address you entered is invalid")
 			}
 			if !isValidticketnumber {
 				fmt.Println(" number of tickets you entered is invalid")
@@ -66,7 +66,7 @@ func getFirstnames() []string {
 }
 func validateUserInput(firstName string, lastName string, email string, userTickets uint) (bool, bool, bool) {
 	isValidname := len(firstName) >= 2 && len(lastName) >= 2
-	isValidemail := strings.Contains(email, "@")
+	isValidemail := strings.Contains(email, "@") && strings.Contains(email, ".com") || strings.Contains(email, ".in")
 	isValidticketnumber := userTickets > 0 && userTickets <= remainingTickets
 	return isValidname, isValidemail, isValidticketnumber
 }
