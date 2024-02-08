@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -11,7 +10,14 @@ var conferenceName = " go conference"
 const conferenceTickets = 50
 
 var remainingTickets uint = 50
-var bookings = make([]map[string]string, 0)
+var bookings = make([]userData, 0)
+
+type userData struct {
+	firstName       string
+	lastName        string
+	email           string
+	numberofTickets uint
+}
 
 func main() {
 
@@ -23,7 +29,10 @@ func main() {
 		isValidname, isValidemail, isValidticketnumber := validateUserInput(firstName, lastName, email, userTickets)
 
 		if isValidemail && isValidname && isValidticketnumber {
+
 			bookTicket(userTickets, firstName, lastName, email)
+			sendTicket(userTickets, firstName, lastName, email)
+
 			// call first name function
 			firstNames := getFirstnames()
 			fmt.Printf("The first names of bookings are: %v\n", firstNames)
@@ -60,7 +69,7 @@ func greetUSers() {
 func getFirstnames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
-		firstNames = append(firstNames, booking["firstName"])
+		firstNames = append(firstNames, booking.firstName)
 	}
 	return firstNames
 }
@@ -94,16 +103,24 @@ func bookTicket(userTickets uint, firstName string, lastName string, email strin
 	remainingTickets = remainingTickets - userTickets
 
 	//map
-	var userDAta = make(map[string]string)
-	userDAta["firstName"] = firstName
-	userDAta["lastName"] = lastName
-	userDAta["email"] = email
-	userDAta["numberofTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+	var userDAta = userData{
+		firstName:       firstName,
+		lastName:        lastName,
+		email:           email,
+		numberofTickets: userTickets,
+	}
 
 	bookings = append(bookings, userDAta)
 	fmt.Printf("List of bookings is %v\n", bookings)
 
 	fmt.Printf("thank you %v %v for booking %v tickets You will receive confermation mail at %v\n", firstName, lastName, userTickets, email)
 	fmt.Printf("%v tickets are remaining for %v\n", remainingTickets, conferenceName)
+
+}
+func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	var ticket = fmt.Sprintf("%v tickets for %v %v \n", userTickets, firstName, lastName)
+	fmt.Println("####################")
+	fmt.Printf("sending ticket:\n %v \nto email address %v\n", ticket, email)
+	fmt.Println("####################")
 
 }
