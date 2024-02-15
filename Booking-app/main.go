@@ -33,7 +33,7 @@ func main() {
 			bookTicket(userTickets, firstName, lastName, email)
 			sendTicket(userTickets, firstName, lastName, email)
 
-			// call first name function
+			// call the  first name function
 			firstNames := getFirstnames()
 			fmt.Printf("The first names of bookings are: %v\n", firstNames)
 
