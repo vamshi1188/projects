@@ -14,7 +14,7 @@ This project is a simple Go application that simulates a conference ticket booki
 
 ## Getting Started:
 
-1. Clone the repository: `git clone https://github.com/vamshi1188/projects.git`
+1. Clone the repository: `git clone https://github.com/vamshi1188/projects/tree/main/Booking-app`
 2. Navigate to the project directory: `cd Booking-app`
 3. Run the application: `go run main.go`
    
