@@ -57,4 +57,4 @@ We welcome contributions! Feel free to submit pull requests with improvements, b
 - Code repository: [Booking-app](https://github.com/vamshi1188/projects/tree/main/Booking-app)
 - Go programming language: [golang.org](https://golang.org/)
 
-I hope this README provides a clear and informative overview of your Booking-app project! Feel free to customize it further with screenshots, documentation links, or additional information specific to your application.
+I hope this README provides a clear and informative overview of our Booking-app project! Feel free to customize it further with screenshots, documentation links, or additional information specific to our application.
