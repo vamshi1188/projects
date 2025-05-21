@@ -7,7 +7,7 @@ import (
 )
 
 func enableCORS(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "https://messageencoderdecoder.vercel.app") // <-- change this
+	w.Header().Set("Access-Control-Allow-Origin", "https://secretchat-ocgsqd14x-vamshi1188s-projects.vercel.app") // <-- change this
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
