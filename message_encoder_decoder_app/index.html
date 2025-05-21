@@ -2,122 +2,490 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Secret Chat Encoder/Decoder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enhanced Secret Chat Tool</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px 15px;
-      max-width: 700px;
-      margin: auto;
-      background: #f9f9f9;
-      color: #222;
+    :root {
+      --primary-color: #007bff;
+      --primary-hover-color: #0056b3;
+      --light-gray: #f8f9fa;
+      --medium-gray: #e9ecef;
+      --dark-gray: #6c757d;
+      --text-color: #343a40;
+      --card-bg: #ffffff;
+      --error-color: #dc3545;
+      --success-color: #28a745;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
-    h2 {
-      color: #444;
-      font-size: 1.5rem;
-      margin-top: 25px;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--light-gray);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      /* Removed background and shadow from container, sections will be cards */
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .section {
+      margin-bottom: 30px;
+      padding: 25px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--medium-gray);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    .section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section h2 {
+      font-size: 1.4rem;
+      color: var(--text-color);
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--medium-gray);
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .textarea-wrapper {
+        position: relative;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
       margin-bottom: 8px;
+      color: var(--dark-gray);
+      font-size: 0.9rem;
     }
 
     textarea {
       width: 100%;
-      min-height: 80px;
+      min-height: 100px;
       padding: 12px;
       font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      border: 1px solid var(--medium-gray);
+      border-radius: calc(var(--border-radius) - 2px);
       resize: vertical;
       box-sizing: border-box;
-      margin-bottom: 12px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      padding-right: 40px; /* Space for the clear button */
     }
 
-    input[type="submit"] {
-      width: 100%;
-      padding: 14px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      background-color: #0070f3;
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    textarea[readonly] {
+      background-color: var(--light-gray);
+      cursor: default;
+      color: var(--dark-gray);
+    }
+
+    .action-button-container {
+        display: flex; /* For potential future additions next to button */
+        margin-bottom: 15px; /* Space before output area or next element */
+    }
+    
+    .action-button {
+      flex-grow: 1;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      background-color: var(--primary-color);
       border: none;
-      border-radius: 6px;
+      border-radius: calc(var(--border-radius) - 2px);
       color: white;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-bottom: 20px;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 45px; /* Ensure consistent height during loading */
     }
 
-    input[type="submit"]:hover {
-      background-color: #005bb5;
+    .action-button:hover:not(:disabled) {
+      background-color: var(--primary-hover-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .action-button:disabled {
+      background-color: #aabbc4; /* A slightly more distinct disabled color */
+      cursor: not-allowed;
     }
 
-    /* Smaller padding on very small screens */
-    @media (max-width: 400px) {
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .action-button.loading .spinner {
+      display: inline-block;
+    }
+    .action-button.loading .button-text {
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .utility-button {
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      background-color: var(--medium-gray);
+      color: var(--text-color);
+      border: 1px solid #ccc;
+      border-radius: calc(var(--border-radius) - 2px);
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+    .utility-button:hover {
+      background-color: #d3d9df;
+      border-color: #bbb;
+    }
+    .utility-button.copied {
+        background-color: var(--success-color);
+        color: white;
+        border-color: var(--success-color);
+    }
+    
+    .clear-btn {
+        position: absolute;
+        top: 50%; /* Center vertically */
+        transform: translateY(-50%);
+        right: 10px;
+        background: transparent;
+        border: none;
+        font-size: 1.5rem; /* Slightly larger for easier clicking */
+        line-height: 1;
+        cursor: pointer;
+        color: var(--dark-gray);
+        padding: 5px;
+        display: none; /* Hidden by default, controlled by JS */
+        z-index: 2;
+    }
+    .clear-btn:hover {
+        color: var(--text-color);
+    }
+
+    .error-message {
+      color: var(--error-color);
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      padding: 10px 15px;
+      border-radius: calc(var(--border-radius) - 2px);
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: none;
+    }
+    
+    .output-controls {
+        display: flex;
+        justify-content: flex-end; /* Aligns copy button to the right */
+        margin-top: 10px;
+    }
+
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
       body {
-        padding: 15px 10px;
+        padding: 10px;
       }
-
-      h2 {
-        font-size: 1.3rem;
+      .container {
+        padding: 0; /* No padding on container, section has padding */
       }
-
-      input[type="submit"] {
-        padding: 12px;
-        font-size: 1rem;
+      .section {
+        padding: 20px;
       }
-
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+      }
+      .section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+      }
       textarea {
+        min-height: 80px;
+        font-size: 0.95rem;
+      }
+      .action-button, .utility-button {
         font-size: 0.9rem;
-        min-height: 70px;
+      }
+      .clear-btn {
+        font-size: 1.3rem;
+        right: 8px;
       }
     }
   </style>
 </head>
 <body>
-  <h2>🔐 Secret Chat Encoder</h2>
-  <textarea id="message" placeholder="Enter your message here..."></textarea>
-  <input type="submit" value="Encode" onclick="encodeMessage()" />
-  <textarea id="encoded" placeholder="Encoded message will appear here..." readonly></textarea>
+  <div class="container">
+    <h1><span role="img" aria-label="Sparkles">✨</span> Secret Chat Tool <span role="img" aria-label="Sparkles">✨</span></h1>
 
-  <h2>🔓 Secret Chat Decoder</h2>
-  <textarea id="code" placeholder="Enter encoded numbers..."></textarea>
-  <input type="submit" value="Decode" onclick="decodeMessage()" />
-  <textarea id="decoded" placeholder="Decoded message will appear here..." readonly></textarea>
+    <div class="section" id="encoder-section">
+      <h2><span role="img" aria-label="Lock Icon">🔐</span> Encode Message</h2>
+      <div class="form-group">
+        <label for="message">Your Message:</label>
+        <div class="textarea-wrapper">
+            <textarea id="message" placeholder="Enter your secret message..." aria-label="Message to encode" rows="4"></textarea>
+            <button class="clear-btn" id="clear-message" aria-label="Clear message input" title="Clear message">×</button>
+        </div>
+      </div>
+      <div class="action-button-container">
+        <button class="action-button" id="encode-button" aria-label="Encode message">
+          <span class="button-text">Encode</span>
+          <div class="spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+      <div class="error-message" id="encode-error" aria-live="polite" role="alert"></div>
+
+      <div class="form-group" style="margin-top: 20px;">
+        <label for="encoded">Encoded Output:</label>
+        <div class="textarea-wrapper">
+            <textarea id="encoded" placeholder="Encoded message will appear here..." readonly aria-label="Encoded message output" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="output-controls">
+        <button class="utility-button" id="copy-encoded" aria-label="Copy encoded message">Copy Output</button>
+      </div>
+    </div>
+
+    <div class="section" id="decoder-section">
+      <h2><span role="img" aria-label="Unlock Icon">🔓</span> Decode Message</h2>
+      <div class="form-group">
+        <label for="code">Encoded Content:</label>
+        <div class="textarea-wrapper">
+            <textarea id="code" placeholder="Enter encoded content (e.g., 123-45-67)..." aria-label="Code to decode" rows="4"></textarea>
+            <button class="clear-btn" id="clear-code" aria-label="Clear code input" title="Clear code">×</button>
+        </div>
+      </div>
+       <div class="action-button-container">
+        <button class="action-button" id="decode-button" aria-label="Decode message">
+          <span class="button-text">Decode</span>
+          <div class="spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+      <div class="error-message" id="decode-error" aria-live="polite" role="alert"></div>
+
+      <div class="form-group" style="margin-top: 20px;">
+        <label for="decoded">Decoded Output:</label>
+        <div class="textarea-wrapper">
+            <textarea id="decoded" placeholder="Decoded message will appear here..." readonly aria-label="Decoded message output" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="output-controls">
+        <button class="utility-button" id="copy-decoded" aria-label="Copy decoded message">Copy Output</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const backendURL = "https://projects-i8np.onrender.com";
+    document.addEventListener('DOMContentLoaded', () => {
+        const backendURL = "https://projects-i8np.onrender.com";
 
-    function encodeMessage() {
-      const message = document.getElementById("message").value;
-      fetch(`${backendURL}/encode`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "message=" + encodeURIComponent(message)
-      })
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("encoded").value = data;
-      })
-      .catch(err => {
-        console.error("Encode error:", err);
-      });
-    }
+        // Elements for Encoder
+        const messageInput = document.getElementById('message');
+        const encodeButton = document.getElementById('encode-button');
+        const encodedOutput = document.getElementById('encoded');
+        const copyEncodedButton = document.getElementById('copy-encoded');
+        const clearMessageButton = document.getElementById('clear-message');
+        const encodeError = document.getElementById('encode-error');
 
-    function decodeMessage() {
-      const code = document.getElementById("code").value;
-      fetch(`${backendURL}/decode`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "code=" + encodeURIComponent(code)
-      })
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("decoded").value = data;
-      })
-      .catch(err => {
-        console.error("Decode error:", err);
-      });
-    }
+        // Elements for Decoder
+        const codeInput = document.getElementById('code');
+        const decodeButton = document.getElementById('decode-button');
+        const decodedOutput = document.getElementById('decoded');
+        const copyDecodedButton = document.getElementById('copy-decoded');
+        const clearCodeButton = document.getElementById('clear-code');
+        const decodeError = document.getElementById('decode-error');
+
+        // --- Helper Functions ---
+        function showLoading(button, show) {
+            button.disabled = show;
+            button.classList.toggle('loading', show);
+        }
+
+        function displayError(element, message) {
+            if (message && element) {
+                element.textContent = message;
+                element.style.display = 'block';
+            } else if (element) {
+                element.style.display = 'none';
+                element.textContent = '';
+            }
+        }
+
+        async function copyToClipboard(text, button) {
+            if (!text || !button) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                button.disabled = true;
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                    button.disabled = false;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                const originalText = button.textContent;
+                button.textContent = 'Copy Failed';
+                 setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }
+        }
+        
+        function setupClearButton(inputElement, clearButton, связанныеВыходные, связанныйЭлементОшибки) {
+            if (!inputElement || !clearButton) return;
+
+            const toggleClearButtonVisibility = () => {
+                clearButton.style.display = inputElement.value.length > 0 ? 'block' : 'none';
+            };
+
+            inputElement.addEventListener('input', toggleClearButtonVisibility);
+            clearButton.addEventListener('click', () => {
+                inputElement.value = '';
+                if (связанныеВыходные) {
+                    связанныеВыходные.forEach(output => output.value = '');
+                }
+                if (связанныйЭлементОшибки) {
+                    displayError(связанныйЭлементОшибки, null);
+                }
+                toggleClearButtonVisibility();
+                inputElement.focus();
+            });
+            toggleClearButtonVisibility(); // Initial check
+        }
+
+
+        // --- Event Listeners & Setup ---
+
+        // Encoder Logic
+        if (encodeButton && messageInput && encodedOutput && encodeError) {
+            encodeButton.addEventListener('click', async () => {
+                const message = messageInput.value.trim();
+                if (!message) {
+                    displayError(encodeError, 'Please enter a message to encode.');
+                    encodedOutput.value = '';
+                    return;
+                }
+
+                showLoading(encodeButton, true);
+                displayError(encodeError, null);
+                encodedOutput.value = '';
+
+                try {
+                    const response = await fetch(`${backendURL}/encode`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: "message=" + encodeURIComponent(message)
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Server error ${response.status}: ${errorText || response.statusText}`);
+                    }
+                    const data = await response.text();
+                    encodedOutput.value = data;
+                } catch (err) {
+                    console.error("Encode error:", err);
+                    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+                    displayError(encodeError, `Failed to encode: ${errorMessage}`);
+                } finally {
+                    showLoading(encodeButton, false);
+                }
+            });
+        }
+
+        if (copyEncodedButton && encodedOutput) {
+            copyEncodedButton.addEventListener('click', () => {
+                copyToClipboard(encodedOutput.value, copyEncodedButton);
+            });
+        }
+        setupClearButton(messageInput, clearMessageButton, [encodedOutput], encodeError);
+
+
+        // Decoder Logic
+        if (decodeButton && codeInput && decodedOutput && decodeError) {
+            decodeButton.addEventListener('click', async () => {
+                const code = codeInput.value.trim();
+                if (!code) {
+                    displayError(decodeError, 'Please enter the content to decode.');
+                    decodedOutput.value = '';
+                    return;
+                }
+                showLoading(decodeButton, true);
+                displayError(decodeError, null);
+                decodedOutput.value = '';
+
+                try {
+                    const response = await fetch(`${backendURL}/decode`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: "code=" + encodeURIComponent(code)
+                    });
+                     if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Server error ${response.status}: ${errorText || response.statusText}`);
+                    }
+                    const data = await response.text();
+                    decodedOutput.value = data;
+                } catch (err) {
+                    console.error("Decode error:", err);
+                    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+                    displayError(decodeError, `Failed to decode: ${errorMessage}`);
+                } finally {
+                    showLoading(decodeButton, false);
+                }
+            });
+        }
+
+        if (copyDecodedButton && decodedOutput) {
+            copyDecodedButton.addEventListener('click', () => {
+                copyToClipboard(decodedOutput.value, copyDecodedButton);
+            });
+        }
+        setupClearButton(codeInput, clearCodeButton, [decodedOutput], decodeError);
+    });
   </script>
 </body>
 </html>
