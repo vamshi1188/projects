@@ -21,25 +21,31 @@
   <textarea id="decoded" placeholder="Decoded message will appear here..."></textarea>
 
   <script>
+    const backendURL = "https://projects-i8np.onrender.com";
+
     function encodeMessage() {
       const message = document.getElementById("message").value;
-      fetch("/encode", {
+      fetch(`${backendURL}/encode`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "message=" + encodeURIComponent(message)
       }).then(res => res.text()).then(data => {
         document.getElementById("encoded").value = data;
+      }).catch(err => {
+        console.error("Encode error:", err);
       });
     }
 
     function decodeMessage() {
       const code = document.getElementById("code").value;
-      fetch("/decode", {
+      fetch(`${backendURL}/decode`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "code=" + encodeURIComponent(code)
       }).then(res => res.text()).then(data => {
         document.getElementById("decoded").value = data;
+      }).catch(err => {
+        console.error("Decode error:", err);
       });
     }
   </script>

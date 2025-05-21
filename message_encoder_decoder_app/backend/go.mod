@@ -1,3 +1,3 @@
-module messageencoderdecoder
+module message_encoder_decoder_app
 
-go 1.24.0
+go 1.24.3
