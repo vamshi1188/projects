@@ -6,6 +6,12 @@ import (
 	"strconv"
 )
 
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "hhttps://messageencoderdecoder.vercel.app") // <-- change this
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+}
+
 func encodeMessage(msg string) string {
 	encoded := ""
 	for _, ch := range msg {
@@ -27,6 +33,10 @@ func decodeMessage(code string) string {
 }
 
 func handleEncode(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
+	if r.Method == http.MethodOptions {
+		return
+	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
@@ -38,6 +48,10 @@ func handleEncode(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDecode(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
+	if r.Method == http.MethodOptions {
+		return
+	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
@@ -49,7 +63,6 @@ func handleDecode(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/encode", handleEncode)
 	http.HandleFunc("/decode", handleDecode)
 
