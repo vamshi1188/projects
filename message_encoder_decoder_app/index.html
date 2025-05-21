@@ -1,24 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Secret Chat Encoder/Decoder</title>
   <style>
-    body { font-family: Arial; padding: 30px; max-width: 700px; margin: auto; }
-    textarea, input[type=submit] { width: 100%; margin-top: 10px; padding: 10px; }
-    h2 { color: #444; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px 15px;
+      max-width: 700px;
+      margin: auto;
+      background: #f9f9f9;
+      color: #222;
+    }
+
+    h2 {
+      color: #444;
+      font-size: 1.5rem;
+      margin-top: 25px;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background-color: #0070f3;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #005bb5;
+    }
+
+    /* Smaller padding on very small screens */
+    @media (max-width: 400px) {
+      body {
+        padding: 15px 10px;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      input[type="submit"] {
+        padding: 12px;
+        font-size: 1rem;
+      }
+
+      textarea {
+        font-size: 0.9rem;
+        min-height: 70px;
+      }
+    }
   </style>
 </head>
 <body>
   <h2>🔐 Secret Chat Encoder</h2>
   <textarea id="message" placeholder="Enter your message here..."></textarea>
   <input type="submit" value="Encode" onclick="encodeMessage()" />
-  <textarea id="encoded" placeholder="Encoded message will appear here..."></textarea>
+  <textarea id="encoded" placeholder="Encoded message will appear here..." readonly></textarea>
 
   <h2>🔓 Secret Chat Decoder</h2>
   <textarea id="code" placeholder="Enter encoded numbers..."></textarea>
   <input type="submit" value="Decode" onclick="decodeMessage()" />
-  <textarea id="decoded" placeholder="Decoded message will appear here..."></textarea>
+  <textarea id="decoded" placeholder="Decoded message will appear here..." readonly></textarea>
 
   <script>
     const backendURL = "https://projects-i8np.onrender.com";
@@ -29,9 +93,12 @@
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "message=" + encodeURIComponent(message)
-      }).then(res => res.text()).then(data => {
+      })
+      .then(res => res.text())
+      .then(data => {
         document.getElementById("encoded").value = data;
-      }).catch(err => {
+      })
+      .catch(err => {
         console.error("Encode error:", err);
       });
     }
@@ -42,9 +109,12 @@
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "code=" + encodeURIComponent(code)
-      }).then(res => res.text()).then(data => {
+      })
+      .then(res => res.text())
+      .then(data => {
         document.getElementById("decoded").value = data;
-      }).catch(err => {
+      })
+      .catch(err => {
         console.error("Decode error:", err);
       });
     }
