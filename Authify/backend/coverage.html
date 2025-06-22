@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>controllers: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">jwtauth/controllers/authcontroller.go (92.3%)</option>
+				
+				<option value="file1">jwtauth/database/connection.go (80.0%)</option>
+				
+				<option value="file2">jwtauth/main.go (0.0%)</option>
+				
+				<option value="file3">jwtauth/routes/routes.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package controllers
+
+import (
+        "jwtauth/database"
+        "jwtauth/models"
+        "time"
+
+        "golang.org/x/crypto/bcrypt"
+
+        "github.com/gofiber/fiber/v2"
+        "github.com/golang-jwt/jwt/v5"
+)
+
+var data map[string]string
+
+const secretkey = "secretkey"
+
+func Register(c *fiber.Ctx) error <span class="cov8" title="1">{
+        if err := c.BodyParser(&amp;data); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
+
+        user := models.User{
+
+                Name:     data["name"],
+                Email:    data["email"],
+                Password: password,
+        }
+
+        database.DB.Create(&amp;user)
+
+        return c.JSON(user)</span>
+
+}
+
+func Login(c *fiber.Ctx) error <span class="cov8" title="1">{
+
+        if err := c.BodyParser(&amp;data); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">var user models.User
+
+        database.DB.Where("email = ?", data["email"]).First(&amp;user)
+        if user.Id == 0 </span><span class="cov8" title="1">{
+                c.Status(fiber.StatusNotFound)
+
+                return c.JSON(fiber.Map{
+                        "message": "user not found",
+                })
+
+        }</span>
+
+        <span class="cov8" title="1">if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["password"])); err != nil </span><span class="cov8" title="1">{
+
+                c.Status(fiber.StatusBadRequest)
+                return c.JSON(fiber.Map{
+                        "message": "incorect password",
+                })
+        }</span>
+
+        <span class="cov8" title="1">claims := jwt.MapClaims{
+                "issuer":    user.Id,
+                "expiresAt": time.Now().Add(time.Hour * 24).Unix(),
+        }
+
+        tokenString := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+        token, err := tokenString.SignedString([]byte("secretkey"))
+
+        if err != nil </span><span class="cov0" title="0">{
+                c.Status(fiber.StatusInternalServerError)
+                return c.JSON(fiber.Map{
+                        "message": "could not login",
+                })
+        }</span>
+
+        <span class="cov8" title="1">cookie := fiber.Cookie{
+                Name:     "jwt",
+                Value:    token,
+                Expires:  time.Now().Add(time.Hour * 24),
+                HTTPOnly: true,
+        }
+
+        c.Cookie(&amp;cookie)
+
+        return c.JSON(fiber.Map{
+                "message": "success",
+        })</span>
+}
+
+func User(c *fiber.Ctx) error <span class="cov8" title="1">{
+
+        cookie := c.Cookies("jwt")
+
+        token, err := jwt.ParseWithClaims(cookie, &amp;jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) </span><span class="cov8" title="1">{
+                return []byte(secretkey), nil
+        }</span>)
+
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                c.Status(fiber.StatusUnauthorized)
+                return c.JSON(fiber.Map{
+                        "message ": "unauthenticated",
+                })
+        }</span>
+
+        <span class="cov8" title="1">claims := token.Claims.(*jwt.MapClaims)
+
+        var user models.User
+
+        id := int((*claims)["issuer"].(float64))
+        database.DB.Where("id = ?", id).First(&amp;user)
+
+        return c.JSON(user)</span>
+
+}
+
+func Logout(c *fiber.Ctx) error <span class="cov8" title="1">{
+
+        cookie := fiber.Cookie{
+                Name:     "jwt",
+                Value:    "",
+                Expires:  time.Now().Add(-time.Hour),
+                HTTPOnly: true,
+        }
+
+        c.Cookie(&amp;cookie)
+
+        return c.JSON(fiber.Map{
+                "message": "success",
+        })
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package database
+
+import (
+        "gorm.io/driver/sqlite"
+        "gorm.io/gorm"
+        "jwtauth/models"
+)
+
+var DB *gorm.DB
+
+func Connect() <span class="cov8" title="1">{
+        connection, err := gorm.Open(sqlite.Open("test.db"), &amp;gorm.Config{})
+        if err != nil </span><span class="cov0" title="0">{
+                panic("couldn't connect to database")</span>
+        }
+
+        <span class="cov8" title="1">DB = connection
+        connection.AutoMigrate(&amp;models.User{})</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "jwtauth/database"
+        "jwtauth/routes"
+
+        "log"
+
+        "github.com/gofiber/fiber/v2"
+        "github.com/gofiber/fiber/v2/middleware/cors"
+)
+
+func main() <span class="cov0" title="0">{
+
+        database.Connect()
+
+        // Initialize a new Fiber app
+        app := fiber.New()
+
+        app.Use(cors.New(cors.Config{
+                AllowCredentials: true,
+                AllowOrigins:     "http://localhost:3000",
+                AllowHeaders:     "Origin, Content-Type, Accept",
+        }))
+
+        routes.Setup(app)
+
+        // Start the server on port 3000
+        log.Fatal(app.Listen(":8000"))
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package routes
+
+import (
+        "jwtauth/controllers"
+
+        "github.com/gofiber/fiber/v2"
+)
+
+func Setup(app *fiber.App) <span class="cov8" title="1">{
+        // Define a route for the GET method on the root path '/'
+        app.Post("/api/register", controllers.Register)
+        app.Post("/api/login", controllers.Login)
+        app.Get("/api/user", controllers.User)
+        app.Post("/api/logout", controllers.Logout)
+
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

@@ -1,0 +1,24 @@
+mode: set
+jwtauth/main.go:13.13,30.2 5 0
+jwtauth/routes/routes.go:9.28,16.2 4 1
+jwtauth/database/connection.go:11.16,13.16 2 1
+jwtauth/database/connection.go:13.16,14.40 1 0
+jwtauth/database/connection.go:17.2,18.40 2 1
+jwtauth/controllers/authcontroller.go:18.35,19.44 1 1
+jwtauth/controllers/authcontroller.go:19.44,21.3 1 1
+jwtauth/controllers/authcontroller.go:23.2,34.21 4 1
+jwtauth/controllers/authcontroller.go:38.32,40.44 1 1
+jwtauth/controllers/authcontroller.go:40.44,42.3 1 0
+jwtauth/controllers/authcontroller.go:44.2,47.18 3 1
+jwtauth/controllers/authcontroller.go:47.18,54.3 2 1
+jwtauth/controllers/authcontroller.go:56.2,56.95 1 1
+jwtauth/controllers/authcontroller.go:56.95,62.3 2 1
+jwtauth/controllers/authcontroller.go:64.2,73.16 4 1
+jwtauth/controllers/authcontroller.go:73.16,78.3 2 0
+jwtauth/controllers/authcontroller.go:80.2,91.4 3 1
+jwtauth/controllers/authcontroller.go:94.31,98.106 2 1
+jwtauth/controllers/authcontroller.go:98.106,100.3 1 1
+jwtauth/controllers/authcontroller.go:102.2,102.16 1 1
+jwtauth/controllers/authcontroller.go:102.16,107.3 2 1
+jwtauth/controllers/authcontroller.go:109.2,116.21 5 1
+jwtauth/controllers/authcontroller.go:120.33,134.2 3 1
