@@ -19,35 +19,59 @@ jobs:
         with:
           go-version: 1.22
 
+      - name: Check directory structure
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo "Looking for backend directory:"
+          find . -name "backend" -type d || echo "Backend directory not found"
+
       - name: Install Go dependencies
-        working-directory: ./backend
-        run: go mod tidy
+        working-directory: .
+        run: |
+          if [ -f "go.mod" ]; then
+            go mod tidy
+          elif [ -f "backend/go.mod" ]; then
+            cd backend && go mod tidy
+          else
+            echo "No go.mod found in current directory or backend directory"
+            exit 1
+          fi
 
       - name: Download and Install Keploy CLI
-        working-directory: ./backend
         run: |
           curl -sSfL https://github.com/keploy/keploy/releases/latest/download/keploy-linux-amd64 -o keploy
           chmod +x keploy
           sudo mv keploy /usr/local/bin/
 
       - name: Start Backend App
-        working-directory: ./backend
         run: |
-          nohup go run main.go > app.log 2>&1 &
-          sleep 10
+          if [ -f "main.go" ]; then
+            nohup go run main.go > app.log 2>&1 &
+          elif [ -f "backend/main.go" ]; then
+            cd backend && nohup go run main.go > app.log 2>&1 &
+          else
+            echo "No main.go found"
+            exit 1
+          fi
+          sleep 15
           echo "Backend started, checking if it's running..."
           ps aux | grep "go run main.go" || echo "Backend process not found"
 
       - name: Wait for application to be ready
-        working-directory: ./backend
         run: |
-          timeout 30 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do sleep 1; done' || echo "Health check failed, continuing anyway"
+          timeout 60 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do 
+            echo "Waiting for health check..."; 
+            sleep 2; 
+          done' || echo "Health check failed, continuing anyway"
 
       - name: Run Keploy Tests
-        working-directory: ./backend
         run: |
           if [ -d "./keploy" ]; then
             keploy test --path=.
+          elif [ -d "backend/keploy" ]; then
+            cd backend && keploy test --path=.
           else
             echo "No Keploy test data found. Skipping tests."
             exit 0
@@ -55,7 +79,6 @@ jobs:
 
       - name: Stop Backend App
         if: always()
-        working-directory: ./backend
         run: |
           pkill -f "go run main.go" || echo "No backend process to kill"
 
@@ -65,13 +88,18 @@ jobs:
         with:
           name: keploy-test-results
           path: |
-            backend/keploy/
-            backend/app.log
-            backend/test-results/
+            ./keploy/
+            ./backend/keploy/
+            ./app.log
+            ./backend/app.log
+            ./test-results/
+            ./backend/test-results/
 
       - name: Upload Application Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: application-logs
-          path: backend/app.log
+          path: |
+            ./app.log
+            ./backend/app.log
