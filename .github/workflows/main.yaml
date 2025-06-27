@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./Authify/backend
 
     steps:
       - name: Checkout code
@@ -39,9 +39,9 @@ jobs:
       - name: Run Keploy Tests
         run: keploy test --path=.
 
-      - name: Upload Coverage Report
+      - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: keploy-test-results
-          path: backend/tests
+          path: tests
