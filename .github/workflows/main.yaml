@@ -9,9 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Authify/backend
 
     steps:
       - name: Checkout code
@@ -22,26 +19,33 @@ jobs:
         with:
           go-version: 1.22
 
+      - name: Change to backend directory
+        working-directory: ./backend
+        run: echo "Changed to backend"
+
       - name: Install Dependencies
+        working-directory: ./backend
         run: go mod tidy
 
       - name: Start Application
+        working-directory: ./backend
         run: |
           nohup go run main.go &
           sleep 5
 
-      - name: Install Keploy
+      - name: Download Keploy Binary
+        working-directory: ./backend
         run: |
-          curl --silent -O -L https://keploy.io/ent/install.sh
-          chmod +x ./install.sh
-          source ./install.sh
+          curl -sSfL https://github.com/keploy/keploy/releases/latest/download/keploy-linux-amd64 -o keploy
+          chmod +x keploy
 
       - name: Run Keploy Tests
-        run: keploy test --path=.
+        working-directory: ./backend
+        run: ./keploy test --path=.
 
-      - name: Upload Test Results
+      - name: Upload Coverage Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: keploy-test-results
-          path: tests
+          path: backend/tests
