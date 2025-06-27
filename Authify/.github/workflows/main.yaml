@@ -21,19 +21,19 @@ jobs:
 
       - name: Change to backend directory
         working-directory: ./backend
-        run: echo "Changed to backend"
+        run: echo "Moved to backend directory"
 
-      - name: Install Dependencies
+      - name: Install Go dependencies
         working-directory: ./backend
         run: go mod tidy
 
-      - name: Start Application
+      - name: Start Backend App
         working-directory: ./backend
         run: |
-          nohup go run main.go &
+          nohup go run main.go > app.log 2>&1 &
           sleep 5
 
-      - name: Download Keploy Binary
+      - name: Download Keploy CLI
         working-directory: ./backend
         run: |
           curl -sSfL https://github.com/keploy/keploy/releases/latest/download/keploy-linux-amd64 -o keploy
@@ -43,7 +43,7 @@ jobs:
         working-directory: ./backend
         run: ./keploy test --path=.
 
-      - name: Upload Coverage Report
+      - name: Upload Keploy Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
