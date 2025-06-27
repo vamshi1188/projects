@@ -1,0 +1,8 @@
+🐰 Keploy: 2025-06-28T02:17:34+05:30 	[31mERROR[0m	failed to authenticate with apikey to the keploy
+🐰 Keploy: 2025-06-28T02:17:34+05:30 	[31mERROR[0m	API key verification failed, trying again...
+🐰 Keploy: 2025-06-28T02:17:35+05:30 	[31mERROR[0m	failed to authenticate with apikey to the keploy
+🐰 Keploy: 2025-06-28T02:17:35+05:30 	[31mERROR[0m	API key verification failed.
+🐰 Keploy: 2025-06-28T02:17:35+05:30 	[34mINFO[0m	Try refreshing the API key from the Keploy Enterprise dashboard. - https://app.keploy.io/
+🐰 Keploy: 2025-06-28T02:18:41+05:30 	[31mERROR[0m	failed to authenticate with apikey to the keploy
+🐰 Keploy: 2025-06-28T02:18:41+05:30 	[31mERROR[0m	API key verification failed, trying again...
+🐰 Keploy: 2025-06-28T02:18:41+05:30 	[31mERROR[0m	failed to read the input for API key	{"error": "failed to read API key: unexpected newline"}

@@ -1,5 +1,7 @@
+# A descriptive name for your workflow, which appears in the GitHub Actions UI.
 name: Keploy API Testing
 
+# Controls when the workflow will run.
 on:
   push:
     branches: [main]
@@ -10,68 +12,73 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # Sets a default working directory for all run steps in this job.
+    # This avoids repeating `working-directory: ./backend` in every step.
+    # IMPORTANT: Change './backend' if your Go application is in a different directory.
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4 # Use latest version
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5 # Use latest version
         with:
-          go-version: 1.22
+          go-version: '1.22'
 
-      - name: Install Go dependencies
-        working-directory: ./backend
+      - name: Install Go Dependencies
         run: go mod tidy
 
       - name: Download and Install Keploy CLI
-        working-directory: ./backend
+        # This step doesn't need the default working-directory, but it's harmless.
         run: |
           curl -sSfL https://github.com/keploy/keploy/releases/latest/download/keploy-linux-amd64 -o keploy
           chmod +x keploy
           sudo mv keploy /usr/local/bin/
 
-      - name: Start Backend App
-        working-directory: ./Authify/backend
+      - name: Start Application in Background
+        # The original workflow had an inconsistent path here ('./Authify/backend').
+        # Using the job-level default './backend' for consistency.
         run: |
           nohup go run main.go > app.log 2>&1 &
-          sleep 10
-          echo "Backend started, checking if it's running..."
-          ps aux | grep "go run main.go" || echo "Backend process not found"
+          echo "Application starting in the background..."
 
-      - name: Wait for application to be ready
-        working-directory: ./backend
+      - name: Wait for Application to be Ready
         run: |
-          timeout 30 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do sleep 1; done' || echo "Health check failed, continuing anyway"
+          echo "Waiting for application to respond on http://localhost:8080/health..."
+          timeout 60 bash -c 'until curl -s -f http://localhost:8080/health > /dev/null; do echo -n "."; sleep 1; done' \
+          || (echo "Health check failed after 60 seconds." && cat app.log && exit 1)
+          echo "Application is ready!"
 
       - name: Run Keploy Tests
-        working-directory: ./backend
+        # Keploy requires the application to be running to capture/replay network traffic.
         run: |
+          # Check if Keploy test data exists before running tests.
           if [ -d "./keploy" ]; then
-            keploy test --path=.
+            # Run tests from the current directory, which is './backend'
+            keploy test --delay 10 --path .
           else
-            echo "No Keploy test data found. Skipping tests."
-            exit 0
+            echo "No Keploy test directory found. Skipping tests."
           fi
 
-      - name: Stop Backend App
+      - name: Stop Application
+        # This step will run even if previous steps fail, ensuring the background process is cleaned up.
         if: always()
-        working-directory: ./backend
         run: |
-          pkill -f "go run main.go" || echo "No backend process to kill"
+          echo "Stopping the application..."
+          pkill -f "go run main.go" || echo "Application process not found or already stopped."
 
-      - name: Upload Keploy Test Results
+      - name: Upload Test Artifacts
+        # This step will run even if tests fail, to help with debugging.
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: keploy-test-results
+          name: test-artifacts
           path: |
             backend/keploy/
-            backend/app.log
             backend/test-results/
-
-      - name: Upload Application Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: application-logs
-          path: backend/app.log
+            backend/app.log
+          # Prevents an error if a path doesn't exist (e.g., test-results/ on a clean run)
+          if-no-files-found: warn
