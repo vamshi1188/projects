@@ -19,85 +19,43 @@ jobs:
         with:
           go-version: 1.22
 
-      - name: Check directory structure
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Directory contents:"
-          ls -la
-          echo "Looking for Go files:"
-          find . -name "*.go" -type f
-          echo "Looking for go.mod files:"
-          find . -name "go.mod" -type f
-
       - name: Install Go dependencies
-        run: |
-          if [ -f "go.mod" ]; then
-            echo "Found go.mod in root directory"
-            go mod tidy
-          elif [ -f "backend/go.mod" ]; then
-            echo "Found go.mod in backend directory"
-            cd backend && go mod tidy
-          else
-            echo "No go.mod found in current directory or backend directory"
-            echo "Current directory contents:"
-            ls -la
-            exit 1
-          fi
+        working-directory: ./backend
+        run: go mod tidy
 
       - name: Download and Install Keploy CLI
+        working-directory: ./backend
         run: |
           curl -sSfL https://github.com/keploy/keploy/releases/latest/download/keploy-linux-amd64 -o keploy
           chmod +x keploy
           sudo mv keploy /usr/local/bin/
 
       - name: Start Backend App
+        working-directory: ./Authify/backend
         run: |
-          if [ -f "main.go" ]; then
-            echo "Starting app from root directory"
-            nohup go run main.go > app.log 2>&1 &
-            APP_DIR="."
-          elif [ -f "backend/main.go" ]; then
-            echo "Starting app from backend directory"
-            cd backend && nohup go run main.go > ../app.log 2>&1 &
-            APP_DIR="backend"
-          else
-            echo "No main.go found"
-            echo "Files in current directory:"
-            ls -la
-            echo "Files in potential backend directory:"
-            ls -la backend/ 2>/dev/null || echo "Backend directory doesn't exist"
-            exit 1
-          fi
-          sleep 15
+          nohup go run main.go > app.log 2>&1 &
+          sleep 10
           echo "Backend started, checking if it's running..."
           ps aux | grep "go run main.go" || echo "Backend process not found"
 
       - name: Wait for application to be ready
+        working-directory: ./backend
         run: |
-          echo "Checking if application is responding..."
-          timeout 60 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do 
-            echo "Waiting for health check..."; 
-            sleep 2; 
-          done' || echo "Health check failed, continuing anyway"
+          timeout 30 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do sleep 1; done' || echo "Health check failed, continuing anyway"
 
       - name: Run Keploy Tests
+        working-directory: ./backend
         run: |
           if [ -d "./keploy" ]; then
-            echo "Running Keploy tests from root directory"
             keploy test --path=.
-          elif [ -d "backend/keploy" ]; then
-            echo "Running Keploy tests from backend directory"
-            cd backend && keploy test --path=.
           else
             echo "No Keploy test data found. Skipping tests."
-            echo "Directories checked:"
-            ls -la . 2>/dev/null || echo "Root directory not accessible"
-            ls -la backend/ 2>/dev/null || echo "Backend directory not accessible"
             exit 0
           fi
 
       - name: Stop Backend App
         if: always()
+        working-directory: ./backend
         run: |
           pkill -f "go run main.go" || echo "No backend process to kill"
 
@@ -107,18 +65,13 @@ jobs:
         with:
           name: keploy-test-results
           path: |
-            keploy/
             backend/keploy/
-            test-results/
+            backend/app.log
             backend/test-results/
-          if-no-files-found: ignore
 
       - name: Upload Application Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: application-logs
-          path: |
-            app.log
-            backend/app.log
-          if-no-files-found: ignore
+          path: backend/app.log
