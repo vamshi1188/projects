@@ -1,0 +1,35 @@
+prompt: |
+  You are an expert C++ developer tasked with improving test coverage for the following unit tests.
+  
+  Here are the current tests:
+  
+  {{TESTS}}
+  
+  And here is the coverage analysis:
+  
+  {{COVERAGE_OUTPUT}}
+  
+  Please improve the tests to increase coverage by:
+  
+  1. Adding tests for uncovered functions and methods
+  2. Adding tests for uncovered branches and conditions
+  3. Testing edge cases and boundary conditions
+  4. Adding tests for error handling paths
+  5. Ensuring all code paths are exercised
+  
+  Focus on:
+  - Functions and methods with low or no coverage
+  - Conditional branches that are not fully exercised
+  - Error handling paths that are not tested
+  - Edge cases that might cause unexpected behavior
+  
+  Make sure your improvements:
+  - Maintain the existing test structure and naming conventions
+  - Follow Google Test best practices
+  - Include descriptive comments explaining the purpose of each new test
+  - Use appropriate assertions with meaningful error messages
+  
+  Format your response as complete test files, with each file starting with a comment line:
+  // Filename: test_filename.cc
+  
+  Include all necessary includes and dependencies in each test file.

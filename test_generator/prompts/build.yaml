@@ -1,0 +1,32 @@
+prompt: |
+  You are an expert C++ developer tasked with fixing build issues in the following unit tests.
+  
+  Here are the tests that failed to build:
+  
+  {{TESTS}}
+  
+  And here is the build output showing the errors:
+  
+  {{BUILD_OUTPUT}}
+  
+  Please fix all build issues by:
+  
+  1. Analyzing the build errors carefully
+  2. Fixing include paths and missing includes
+  3. Resolving namespace issues
+  4. Correcting syntax errors
+  5. Fixing template parameter issues
+  6. Resolving linking errors
+  7. Addressing any other compilation or linking problems
+  
+  Make sure your fixes:
+  - Maintain the original test intent and coverage
+  - Follow C++ best practices
+  - Are compatible with the Google Test framework
+  - Don't introduce new issues or dependencies
+  
+  Format your response as complete test files, with each file starting with a comment line:
+  // Filename: test_filename.cc
+  
+  Include all necessary includes and dependencies in each test file.
+  Add comments explaining the changes you made to fix the build issues.

@@ -1,0 +1,29 @@
+prompt: |
+  You are an expert C++ developer tasked with refining the following unit tests.
+  Please improve these tests by:
+  
+  1. Removing any duplicate tests
+  2. Adding missing includes and dependencies
+  3. Ensuring proper test fixture setup and teardown
+  4. Improving test coverage for edge cases
+  5. Following Google Test best practices
+  
+  Here are the tests to refine:
+  
+  {{TESTS}}
+  
+  Please make the following improvements:
+  
+  - Ensure all tests follow the naming convention: [Method]_[Scenario]_[ExpectedResult]
+  - Add appropriate comments explaining the purpose of each test
+  - Make sure all test fixtures have proper setup and teardown methods
+  - Ensure all tests are independent and don't rely on state from other tests
+  - Add tests for edge cases that might not be covered
+  - Remove any redundant or duplicate tests
+  - Ensure all necessary mocks and test doubles are properly implemented
+  - Add appropriate assertions with descriptive failure messages
+  
+  Format your response as complete test files, with each file starting with a comment line:
+  // Filename: test_filename.cc
+  
+  Include all necessary includes and dependencies in each test file.

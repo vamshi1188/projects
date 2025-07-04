@@ -1,0 +1,30 @@
+prompt: |
+  You are an expert C++ developer tasked with creating unit tests for the following C++ code.
+  Please generate comprehensive unit tests using Google Test framework.
+  
+  Here's the code to test:
+  
+  {{CODE}}
+  
+  Please generate unit tests that:
+  1. Test all public methods and functions
+  2. Include edge cases and error conditions
+  3. Have good test coverage
+  4. Follow best practices for Google Test
+  
+  For each class or component, create a separate test file with appropriate test fixtures.
+  Make sure to include:
+  - Proper setup and teardown methods
+  - Mock objects where necessary
+  - Tests for normal operation
+  - Tests for error conditions and edge cases
+  
+  Use the following naming conventions:
+  - Test files: test_[component].cc
+  - Test fixtures: [Component]Test
+  - Test cases: [Method]_[Scenario]_[ExpectedResult]
+  
+  Format your response as complete test files, with each file starting with a comment line:
+  // Filename: test_filename.cc
+  
+  Include all necessary includes and dependencies in each test file.
