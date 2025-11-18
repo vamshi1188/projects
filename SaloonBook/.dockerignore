@@ -1,0 +1,9 @@
+dist
+node_modules
+.git
+.gitignore
+Dockerfile
+frontend/web/node_modules
+.env
+.env.*
+attached_assets/generated_images
