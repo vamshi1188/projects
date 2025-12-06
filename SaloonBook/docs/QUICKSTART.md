@@ -1,52 +1,75 @@
 # Quick Start Guide
 
-## ✅ Database is Running on Port 5433
+## Frontend-Only Application
 
-Your local PostgreSQL was using port 5432, so Docker PostgreSQL now uses port **5433**.
+SaloonBook is now a **100% frontend application** with no backend or database required. All data is stored in your browser's LocalStorage.
 
 ## Start the Application
 
-### Backend
-```bash
-cd backend
-DATABASE_URL=postgres://postgres:postgres@localhost:5433/saloonbook_dev \
-PORT=5000 \
-go run ./cmd
-```
-
-### Frontend (separate terminal)
+### Install Dependencies
 ```bash
 cd frontend/web
 npm install
+```
+
+### Development Mode
+```bash
+cd frontend/web
 npm run dev
 ```
 
+Then open http://localhost:5173 in your browser.
+
 ## Alternative: Using Makefile
 
-The Makefile has been updated with the correct port:
+```bash
+# Install dependencies
+make install
+
+# Run development server
+make dev
+
+# Build for production
+make build
+
+# Serve production build
+make serve
+```
+
+## Production Build
+
+Build the optimized production bundle:
 
 ```bash
-# Terminal 1: Backend
-make backend
-
-# Terminal 2: Frontend  
-make frontend
+cd frontend/web
+npm run build
 ```
 
-## Connection Strings
+The output will be in `frontend/web/dist/`.
 
-**Local Development:**
-```
-DATABASE_URL=postgres://postgres:postgres@localhost:5433/saloonbook_dev
+Serve it with any static file server:
+
+```bash
+# Using npx serve
+npx serve dist
+
+# Using Python
+python -m http.server 8080 -d dist
+
+# Using nginx with Docker
+make docker
 ```
 
-**Docker Backend (inside compose network):**
-```
-DATABASE_URL=postgres://postgres:postgres@db:5432/saloonbook_dev
-```
-(Inside Docker network, it uses internal port 5432)
+## Features
 
-## Test Endpoints
+- ✅ No backend required
+- ✅ No database setup needed
+- ✅ All data stored in browser LocalStorage
+- ✅ Service selection and booking management
+- ✅ QR code generation
+- ✅ Responsive mobile-first design
+
+## Test the Application
 
 Once running:
 - Frontend: http://localhost:5173

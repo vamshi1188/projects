@@ -1,0 +1,241 @@
+body, html {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
+    font-size: 15px;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    background-color: #CAD5DD;
+}
+body{
+    position: absolute;
+}
+* {
+    box-sizing: border-box;
+}
+textarea, select, input, button {
+    outline: none;
+}
+
+#map {
+    float: right;
+    width: 80%;
+    height: 100%;
+}
+
+.box {
+    float:left;
+    z-index: 10;
+    position: relative;
+    _background: rgba(227,233,237,0.6);
+    background: rgba(227,233,237,1);
+    color: #2F404B;
+    display: flex;
+    flex-direction: column;
+}
+
+.mapboxgl-ctrl-top-right{
+    margin-top: 4px;
+    margin-right: 4px;
+}
+
+.green-left {
+    border-left: 2px solid #A2D321;
+}
+
+.box.quarter {
+    width: 20%;
+}
+
+.box.left {
+    height: 100%;
+}
+
+.box>.mast {
+    background: #fff;
+}
+
+.box>.mast .tag{
+    text-align: center;
+    position: relative;
+    top: -10px;
+}
+
+.logo {
+    display: block;
+    width: 112px;
+    height: 40px;
+    margin: 16px auto;
+}
+
+.box>.info {
+    background: #EEF1F4;
+    color: #2F404B;
+    font-size: 12px;
+    margin: 10px;
+    padding: 15px;
+}
+
+.box>.messages {
+    position: relative;
+    bottom: 0px;
+    height: 100%;
+    overflow-y: auto;
+    margin: 15px;
+    margin-bottom: 0;
+}
+
+.box>.input {
+    border: 0;
+    font-size: 15px;
+    padding: 15px 20px;
+    margin: 10px;
+    background-color: #F4F6F7;
+    color: #2F404B;
+    bottom: 15px;
+}
+
+::placeholder {
+    color: #BBC1C4;
+}
+
+.chat-text {
+    color: #2F404B;
+}
+
+
+@media only screen and (max-width: 640px) {
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .box {
+        display: none;
+        background:transparent;
+        pointer-events: none;
+    }
+    .box.left {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        bottom: 34px;
+    }
+    .box.quarter {
+        max-width: 100%;
+        min-width: 100%;
+    }
+    .box>.input {
+        pointer-events: auto;
+    }
+    /* .mapboxgl-ctrl-top-right{
+        margin-top: 74px;
+        margin-right: 4px;
+    } */
+}
+
+/* Modals */
+.modal {
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-width: 300px;
+}
+
+.modal-content h2, .modal-content h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.modal-content input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+
+#login-btn {
+    background-color: #acd049;
+    color: white;
+    font-weight: bold;
+}
+
+#login-btn:hover {
+    background-color: #9ab840;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #f44336;
+    color: white;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Connection Status Box */
+.status-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    background-color: #666;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-small:hover {
+    background-color: #555;
+}
+ 

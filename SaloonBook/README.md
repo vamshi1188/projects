@@ -1,42 +1,50 @@
 # SaloonBook
 
-> Go backend + React (Vite) frontend.
+> React (Vite) frontend-only salon booking application with Android APK support.
 
 ---
 
 ## Quick overview
 
 - Frontend: `frontend/web/` — Vite + React + TypeScript UI
-- Backend: `backend/` — Go (chi router, pgx Postgres)
-- DB: PostgreSQL via `DATABASE_URL`
+- All data is stored locally in the browser (LocalStorage)
+- No backend or database required
+- **NEW:** Can be built as an Android APK using Capacitor
 
 This README shows the most common commands to develop, build and run the app locally.
+
+## 📱 Build Android APK
+
+🎉 **NEW!** Your app is ready to build as an Android APK!
+
+### Quick Start (3 Steps):
+```bash
+# 1. Check environment
+./check-android-env.sh
+
+# 2. Run setup
+./setup-android.sh
+
+# 3. Build APK
+cd frontend/web && npx cap open android
+```
+
+### 📚 Complete Documentation:
+- **[BUILD_ANDROID_README.md](./BUILD_ANDROID_README.md)** - 📖 **START HERE** - Complete overview
+- **[QUICKSTART_ANDROID.md](./QUICKSTART_ANDROID.md)** - ⚡ Quick commands reference
+- **[ANDROID_BUILD_GUIDE.md](./ANDROID_BUILD_GUIDE.md)** - 📘 Detailed step-by-step guide
+- **[ANDROID_BUILD_FLOW.md](./ANDROID_BUILD_FLOW.md)** - 🎯 Visual diagrams and flows
+- **[ANDROID_CHECKLIST.md](./ANDROID_CHECKLIST.md)** - ✅ Verification checklist
+- **[ANDROID_TROUBLESHOOTING.md](./ANDROID_TROUBLESHOOTING.md)** - 🔧 Problem solving guide
+
+Your APK will be at: `frontend/web/android/app/build/outputs/apk/debug/app-debug.apk`
 
 ## Prerequisites
 
 - Node.js 18+ (recommend latest LTS)
 - npm (or yarn / pnpm)
-- A Postgres-compatible database (Neon, Supabase, local Postgres, etc.)
 
-Optional (for SMS / payments): Twilio credentials, Stripe keys.
-
-## Environment variables
-
-Create a `.env` file at the project root (or set environment variables in your shell). Minimal variables the app expects:
-
-```
-DATABASE_URL=postgres://user:pass@host:5432/dbname
-SESSION_SECRET=your-session-secret
-PORT=5000
-NODE_ENV=development
-# Optional (if you add payments or SMS later):
-# STRIPE_SECRET_KEY=sk_live_...
-# STRIPE_PUBLISHABLE_KEY=pk_live_...
-# TWILIO_ACCOUNT_SID=...
-# TWILIO_AUTH_TOKEN=...
-```
-
-Keep secrets out of source control. Use a vault or CI secrets for production.
+Optional (for future SMS / payments integration): Twilio credentials, Stripe keys.
 
 ## Install dependencies
 
@@ -45,6 +53,7 @@ Use your preferred package manager. Examples below use npm.
 Install (one-time):
 
 ```bash
+cd frontend/web
 npm install
 ```
 
@@ -52,33 +61,18 @@ If you prefer pnpm or yarn:
 
 ```bash
 # pnpm
+cd frontend/web
 pnpm install
 
 # yarn
-yarn install
-```
-
-## Setup
-
-```bash
-# Frontend
 cd frontend/web
-npm install
-
-# Backend
-cd backend
-go mod tidy
+yarn install
 ```
 
 ## Development
 
-Terminal 1:
-```bash
-cd backend
-PORT=5000 DATABASE_URL=postgres://postgres:postgres@localhost:5432/saloonbook_dev go run ./cmd/saloonbook
-```
+Run the development server:
 
-Terminal 2:
 ```bash
 cd frontend/web
 npm run dev
@@ -86,51 +80,54 @@ npm run dev
 
 Open http://localhost:5173
 
-API proxied at `/api/*`.
+The app runs entirely in the browser with no backend required. All bookings and data are stored in your browser's LocalStorage.
 
-Health check:
+## Production build
 
-```bash
-curl http://localhost:5000/api/health
-```
-
-Example services:
-
-```bash
-curl http://localhost:5000/api/services
-```
-
-Create booking:
-
-```bash
-curl -X POST http://localhost:5000/api/bookings -H 'Content-Type: application/json' \
- -d '{"serviceId":1,"customer":"Alice","phone":"123456"}'
-```
-
-List bookings:
-
-```bash
-curl http://localhost:5000/api/bookings
-```
-
-## Production build (frontend)
-
-Build React:
+Build the optimized React app:
 
 ```bash
 cd frontend/web
 npm run build
 ```
 
-(Optional) Serve `dist/` via nginx or add static file serving in Go.
+The build output will be in `frontend/web/dist/`. You can serve this with any static file server:
 
-## Cleaning
+```bash
+# Using npx serve
+npx serve dist
 
-Old Node/Express artifacts removed (`dist/`, drizzle config). Use a Go migration tool before real DB writes.
+# Using Python
+python -m http.server 8080 -d dist
 
-## Notes
+# Using Node.js http-server
+npx http-server dist
+```
 
-Original Node/Express backend replaced by Go; Drizzle migrations not yet ported—add a Go migration tool (e.g. goose, sqlc) next.
+## Features
+
+- Service selection (Haircut, Beard, Hair & Beard Color, Massage, Face Wash)
+- Multiple style options for each service
+- Phone verification flow
+- Booking management
+- Order summary and confirmation
+- QR code generation for bookings
+- Responsive mobile-first design
+
+## Project Structure
+
+```
+frontend/web/
+├── src/
+│   ├── components/     # React components
+│   ├── api/           # API client (now using LocalStorage)
+│   ├── constants/     # App constants
+│   ├── types/         # TypeScript types
+│   ├── hooks/         # Custom React hooks
+│   └── lib/           # Utility functions
+├── public/            # Static assets
+└── attached_assets/   # Images and generated assets
+```
 
 ---
 

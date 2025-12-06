@@ -1,13 +1,13 @@
 # SaloonBook Frontend
 
-React + TypeScript + Vite frontend for SaloonBook.
+React + TypeScript + Vite frontend-only salon booking application.
 
 ## Structure
 
 ```
 frontend/web/
 ├── src/
-│   ├── api/             # API client and services
+│   ├── api/             # LocalStorage-based data layer
 │   ├── components/      # React components
 │   │   ├── ui/          # Reusable UI components
 │   │   └── examples/    # Example components
@@ -29,16 +29,26 @@ npm install
 npm run dev
 ```
 
+Open http://localhost:5173 in your browser.
+
 ## Build
 
 ```bash
 npm run build
 ```
 
-## Environment Variables
+The optimized production build will be in `dist/`.
 
-Create `.env.development`:
+## Features
 
-```
-VITE_API_URL=http://localhost:5000/api
-```
+- **100% Frontend**: No backend or database required
+- **LocalStorage**: All data persisted in browser
+- **Service Selection**: Haircut, Beard, Color, Massage, Face Wash
+- **Phone Verification**: OTP-style verification flow
+- **Booking Management**: View and manage bookings
+- **QR Codes**: Generate booking confirmation QR codes
+- **Responsive Design**: Mobile-first UI with Tailwind CSS
+
+## No Backend Required
+
+This app runs entirely in your browser using LocalStorage for data persistence. No server, database, or API required!

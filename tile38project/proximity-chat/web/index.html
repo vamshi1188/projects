@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Tile38 Chat Demo</title>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="site.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="chatbox" class="box left quarter">
+        <div class="mast">
+            <img class="logo" src="logo.png" />
+        </div>
+        <div id="chat-messages" class="messages"></div>
+        <input id="chat-input" class="input" type="text" placeholder="Message">
+    </div>
+    
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Proximity Chat</h2>
+            <input type="text" id="login-name" placeholder="Enter your name" maxlength="15">
+            <button id="login-btn">Join</button>
+        </div>
+    </div>
+
+    <!-- Connection Request Modal -->
+    <div id="request-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="request-text">User wants to connect</h3>
+            <div class="actions">
+                <button id="accept-btn" class="btn-success">Accept</button>
+                <button id="reject-btn" class="btn-danger">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status / Actions -->
+    <div id="connection-status" class="status-box" style="display:none;">
+        <span id="connected-with">Connected with: None</span>
+        <button id="disconnect-btn" class="btn-small">Disconnect</button>
+    </div>
+
+    <div id="map"></div>
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+    <script src="site.js"></script>
+</body>
+
+</html>

@@ -10,12 +10,9 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, '../../attached_assets'),
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-    },
+  base: './',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
   },
 });

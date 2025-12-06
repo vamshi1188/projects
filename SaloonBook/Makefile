@@ -1,28 +1,24 @@
 FRONTEND_DIR=frontend/web
-BACKEND_DIR=backend
-PORT?=5000
-DB_URL?=postgres://postgres:postgres@localhost:5433/saloonbook_dev
 
-.PHONY: dev backend frontend build clean docker test
+.PHONY: install dev build clean docker serve test
 
-dev: backend frontend
+install:
+	cd $(FRONTEND_DIR) && npm install
 
-backend:
-	cd $(BACKEND_DIR) && PORT=$(PORT) DATABASE_URL=$(DB_URL) go run ./cmd
-
-frontend:
+dev:
 	cd $(FRONTEND_DIR) && npm run dev
 
 build:
 	cd $(FRONTEND_DIR) && npm install && npm run build
-	cd $(BACKEND_DIR) && go build -o bin/saloonbook ./cmd
 
 clean:
-	rm -rf $(FRONTEND_DIR)/dist $(BACKEND_DIR)/bin
+	rm -rf $(FRONTEND_DIR)/dist $(FRONTEND_DIR)/node_modules
 
-docker:
-	docker compose up --build -d db backend
+docker: build
+	docker compose up -d
+
+serve: build
+	cd $(FRONTEND_DIR) && npx serve dist
 
 test:
-	cd $(BACKEND_DIR) && go test ./...
 	cd $(FRONTEND_DIR) && npm run typecheck

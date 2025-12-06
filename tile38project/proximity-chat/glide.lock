@@ -1,0 +1,25 @@
+hash: 808fc4b81540640ca6294a6cbfd815f1cc83cdb192abf6eb90a4f33c37c456df
+updated: 2018-08-26T18:37:34.495863-07:00
+imports:
+- name: github.com/gomodule/redigo
+  version: 2cd21d9966bf7ff9ae091419744f0b3fb0fecace
+  subpackages:
+  - internal
+  - redis
+- name: github.com/gorilla/websocket
+  version: 66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d
+- name: github.com/paulbellamy/ratecounter
+  version: a803f0e4f07116687bb30965e8f7d0c32981b63c
+- name: github.com/tidwall/gjson
+  version: 1e3f6aeaa5bad08d777ea7807b279a07885dd8b2
+- name: github.com/tidwall/match
+  version: 1731857f09b1f38450e2c12409748407822dc6be
+- name: github.com/tidwall/sjson
+  version: 6a22caf2fd45d5e2119bfc3717e984f15a7eb7ee
+- name: github.com/tidwall/tile38
+  version: 3a6f366955abdc4ef7e9887ba81c011448099ba3
+  subpackages:
+  - pkg/geojson/geo
+- name: github.com/tile38/msgkit
+  version: cd35bb7e8b02c18768e79dfe0816928d4d9c73a4
+testImports: []
