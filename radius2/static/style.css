@@ -10,6 +10,9 @@ html {
     overflow: hidden;
     font-family: 'Roboto', sans-serif;
     background-color: #CAD5DD;
+    display: flex;
+    /* Use flexbox for main layout */
+    flex-direction: row;
 }
 
 * {
@@ -17,13 +20,14 @@ html {
 }
 
 #map {
-    float: right;
-    width: 80%;
+    flex: 1;
+    /* Take remaining space */
     height: 100%;
+    order: 2;
+    /* Map on the right by default */
 }
 
 .box {
-    float: left;
     z-index: 10;
     position: relative;
     background: rgba(227, 233, 237, 1);
@@ -31,14 +35,19 @@ html {
     display: flex;
     flex-direction: column;
     height: 100%;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    /* Add shadow for separation */
 }
 
 .box.quarter {
-    width: 20%;
-}
-
-.box.left {
-    height: 100%;
+    width: 300px;
+    /* Fixed width for sidebar on desktop */
+    min-width: 250px;
+    max-width: 400px;
+    flex-shrink: 0;
+    /* Don't shrink below min-width */
+    order: 1;
+    /* Sidebar on the left */
 }
 
 .mast {
@@ -46,12 +55,20 @@ html {
     padding: 20px;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
 }
 
 .mast h1 {
     margin: 0;
     font-size: 1.2rem;
     color: #2F404B;
+}
+
+.logo {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 10px auto;
 }
 
 .info {
@@ -61,6 +78,17 @@ html {
     margin: 10px;
     padding: 15px;
     border-radius: 4px;
+    flex-shrink: 0;
+}
+
+#chat-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* Take remaining space in .box, don't force 100% height */
+    min-height: 0;
+    /* Allow shrinking for scroll */
+    overflow: hidden;
 }
 
 .messages {
@@ -73,6 +101,8 @@ html {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-height: 0;
+    /* Crucial for nested flex scrolling */
 }
 
 .input {
@@ -83,6 +113,7 @@ html {
     background-color: #F4F6F7;
     color: #2F404B;
     border-radius: 4px;
+    flex-shrink: 0;
 }
 
 .btn-primary {
@@ -95,6 +126,11 @@ html {
     width: 100%;
     margin-top: 10px;
     font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
 }
 
 .btn-secondary {
@@ -104,6 +140,11 @@ html {
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #dc2626;
 }
 
 .btn-small {
@@ -128,6 +169,8 @@ html {
     left: 50%;
     transform: translateX(-50%);
     z-index: 2000;
+    width: 90%;
+    max-width: 400px;
 }
 
 .card {
@@ -136,7 +179,6 @@ html {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     text-align: center;
-    min-width: 300px;
 }
 
 .actions {
@@ -144,6 +186,8 @@ html {
     gap: 10px;
     justify-content: center;
     margin-top: 15px;
+    flex-wrap: wrap;
+    /* Allow wrapping on very small screens */
 }
 
 /* Message Styles */
@@ -175,21 +219,76 @@ html {
     align-self: center;
 }
 
-/* Responsive */
-@media only screen and (max-width: 640px) {
+/* Responsive Breakpoints */
+
+/* Tablet (Portrait) and smaller desktops */
+@media only screen and (max-width: 1024px) {
+    .box.quarter {
+        width: 250px;
+        /* Slightly narrower sidebar */
+    }
+}
+
+/* Mobile Devices */
+@media only screen and (max-width: 768px) {
+
+    body,
+    html {
+        flex-direction: column;
+        /* Stack vertically */
+    }
+
     #map {
+        order: 1;
+        /* Map on top */
+        height: 60%;
+        /* Map takes top 60% */
         width: 100%;
-        height: 100%;
-        float: none;
     }
 
     .box.quarter {
+        order: 2;
+        /* Sidebar on bottom */
         width: 100%;
         height: 40%;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        z-index: 1000;
+        /* Sidebar takes bottom 40% */
+        min-width: auto;
+        max-width: none;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .mast {
+        padding: 10px;
+        /* Smaller header */
+    }
+
+    .mast h1 {
+        font-size: 1rem;
+    }
+
+    .info {
+        margin: 5px;
+        padding: 10px;
+    }
+
+    .input {
+        margin: 5px;
+        padding: 10px;
+    }
+}
+
+/* Small Mobile Devices */
+@media only screen and (max-width: 480px) {
+    #map {
+        height: 50%;
+    }
+
+    .box.quarter {
+        height: 50%;
+    }
+
+    .card {
+        padding: 1.5rem;
     }
 }
 
@@ -202,6 +301,8 @@ html {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    pointer-events: none;
+    /* Allow clicking through container */
 }
 
 .toast {
@@ -213,6 +314,8 @@ html {
     animation: slideIn 0.3s ease-out forwards;
     opacity: 0;
     transform: translateY(20px);
+    pointer-events: auto;
+    /* Re-enable pointer events for toasts */
 }
 
 .toast.show {

@@ -66,7 +66,11 @@ func (h *Hub) run() {
 					if partner, ok := h.clients[client.PartnerID]; ok {
 						partner.Status = StatusIdle
 						partner.PartnerID = ""
-						partner.send <- []byte(`{"type":"partner_disconnected"}`)
+						endMsg, _ := json.Marshal(map[string]interface{}{
+							"type":    "chat_ended",
+							"message": "Partner disconnected",
+						})
+						partner.send <- endMsg
 					}
 				}
 				delete(h.clients, client.ID)
@@ -251,6 +255,38 @@ func (c *Client) readPump() {
 					partner.send <- forwardMsg
 				}
 			}
+
+		case "end_chat":
+			log.Printf("User %s (%s) requested end_chat. PartnerID: %s", c.Name, c.ID, c.PartnerID)
+			c.hub.mu.Lock()
+			if c.PartnerID != "" {
+				if partner, ok := c.hub.clients[c.PartnerID]; ok {
+					log.Printf("Found partner %s (%s). Sending chat_ended.", partner.Name, partner.ID)
+					partner.Status = StatusIdle
+					partner.PartnerID = ""
+					endMsg, _ := json.Marshal(map[string]interface{}{
+						"type":    "chat_ended",
+						"message": c.Name + " left the chat",
+					})
+					partner.send <- endMsg
+				} else {
+					log.Printf("Partner ID %s not found in hub.", c.PartnerID)
+				}
+			} else {
+				log.Printf("User %s has no PartnerID.", c.Name)
+			}
+			c.Status = StatusIdle
+			c.PartnerID = ""
+			c.hub.mu.Unlock()
+
+			// Notify self as well to reset state
+			endMsg, _ := json.Marshal(map[string]interface{}{
+				"type":    "chat_ended",
+				"message": "Chat ended",
+			})
+			c.send <- endMsg
+
+			c.hub.broadcastUserList()
 		}
 	}
 }

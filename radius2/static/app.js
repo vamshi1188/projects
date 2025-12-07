@@ -8,6 +8,7 @@ let markers = {}; // id -> L.marker
 let connectionLine = null;
 let isChatting = false;
 let partnerID = null;
+let localMarker = null; // Marker for self before login
 
 // DOM Elements
 const mapElement = document.getElementById('map');
@@ -44,7 +45,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Attempt to locate immediately on load
-map.locate({ setView: true, maxZoom: 16 });
+startLocationTracking();
 
 // Login
 joinBtn.addEventListener('click', () => {
@@ -55,7 +56,11 @@ joinBtn.addEventListener('click', () => {
         chatSection.classList.remove('hidden'); // Show chat section but in idle state
         chatStatus.textContent = `Logged in as ${myName}`;
         initWebSocket();
-        startLocationTracking();
+
+        // If we already have location, send it immediately
+        if (myLat && myLon) {
+            // We need to wait for WS connection, which is handled in onopen
+        }
     }
 });
 
@@ -74,6 +79,13 @@ function initWebSocket() {
     ws.onopen = () => {
         console.log('Connected to server');
         send({ type: 'login', name: myName });
+        if (myLat && myLon) {
+            send({
+                type: 'update_location',
+                lat: myLat,
+                lon: myLon
+            });
+        }
     };
 
     ws.onmessage = (event) => {
@@ -110,8 +122,13 @@ function handleMessage(msg) {
             addMessage(msg.content, 'received');
             break;
         case 'partner_disconnected':
+            // Legacy handler, but kept for safety
             endChat();
             showToast('Partner disconnected.', 'error');
+            break;
+        case 'chat_ended':
+            endChat();
+            showToast('Chat ended.', 'info');
             break;
     }
 }
@@ -126,42 +143,48 @@ function updateMap(users) {
         }
     }
 
+    // If we have a local marker and we are in the user list, remove local marker to avoid duplicates
+    if (localMarker && currentIDs.has(myID)) {
+        map.removeLayer(localMarker);
+        localMarker = null;
+    }
+
     let myUser = null;
     let partnerUser = null;
 
     users.forEach(user => {
         if (user.id === myID) {
             myUser = user;
-            // Don't return, we want to show ourselves too
         }
 
         if (user.id === partnerID) {
             partnerUser = user;
         }
 
-        let color = '#3b82f6'; // Default blue
-        if (user.status === 'requesting') color = '#10b981';
-        if (user.status === 'chatting') color = '#ef4444';
+        // Generate unique color for each user
+        let color = stringToColor(user.id + user.name);
 
-        // Special styling for self if needed, but user asked for blue circle
-        // We can keep the same style or make it distinct. 
-        // Let's keep it consistent but maybe add a pulsing effect or just standard.
-        // For now, standard style matches "blue color circle".
+        // Status overrides color? Maybe outline or pulsing?
+        // Let's keep the unique color but add status indicator
+        let borderColor = 'white';
+        if (user.status === 'requesting') borderColor = '#10b981'; // Green border
+        if (user.status === 'chatting') borderColor = '#ef4444'; // Red border
 
         const icon = L.divIcon({
             className: 'custom-div-icon',
-            html: `<div style="background-color:${color};width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
+            html: `<div style="background-color:${color};width:14px;height:14px;border-radius:50%;border:3px solid ${borderColor};box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
         });
 
         if (markers[user.id]) {
+            // Optimization: Only update if position changed significantly or status changed
+            // For now, just update
             markers[user.id].setLatLng([user.lat, user.lon]);
             markers[user.id].setIcon(icon);
         } else {
             const marker = L.marker([user.lat, user.lon], { icon: icon }).addTo(map);
 
-            // Only allow clicking on OTHERS
             // Only allow clicking on OTHERS
             if (user.id !== myID) {
                 marker.on('click', () => {
@@ -199,7 +222,6 @@ function updateMap(users) {
 
 function startLocationTracking() {
     if ('geolocation' in navigator) {
-        // Also use Leaflet's locate method which is often more robust for maps
         map.locate({ setView: true, maxZoom: 16, watch: true });
 
         map.on('locationfound', onLocationFound);
@@ -213,17 +235,33 @@ function onLocationFound(e) {
     myLat = e.latlng.lat;
     myLon = e.latlng.lng;
 
-    send({
-        type: 'update_location',
-        lat: myLat,
-        lon: myLon
-    });
+    // Update local marker if not logged in yet
+    if (!myName) {
+        if (localMarker) {
+            localMarker.setLatLng(e.latlng);
+        } else {
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color:#3b82f6;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            localMarker = L.marker(e.latlng, { icon: icon }).addTo(map);
+            localMarker.bindTooltip("You (Offline)", { permanent: false, direction: 'top' });
+        }
+    }
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        send({
+            type: 'update_location',
+            lat: myLat,
+            lon: myLon
+        });
+    }
 }
 
 function onLocationError(e) {
     console.error(e.message);
-    // Fallback if needed, but for now just log
-    // alert('Location access denied.');
 }
 
 // Chat Request Logic
@@ -290,19 +328,22 @@ function startChat(msg) {
     messageInput.focus();
     messagesDiv.innerHTML = '';
     addMessage(`Connected with ${msg.partnerName}`, 'system');
-
-    // Force map update to draw line immediately
-    // We need the latest user positions, which we might have in cache or wait for next update
-    // But we can just wait for next 'world_state' or trigger one?
-    // The server broadcasts user list on accept_chat, so we should get a world_state soon.
 }
 
-function endChat() {
+function endChat(message) {
+    console.log("Ending chat. Reason:", message);
     isChatting = false;
     partnerID = null;
-    chatStatus.textContent = `Logged in as ${myName}`;
+    // If message is provided, show it. If not, show "Chat ended" as default for safety, or "Logged in..." if we want to reset.
+    // User wants to see "User left", so we should stick to the message.
+    chatStatus.textContent = message || `Chat ended`;
     leaveChatBtn.classList.add('hidden');
     messageInput.disabled = true;
+
+    if (message) {
+        addMessage(message, 'system');
+    }
+
     if (connectionLine) {
         map.removeLayer(connectionLine);
         connectionLine = null;
@@ -310,7 +351,8 @@ function endChat() {
 }
 
 leaveChatBtn.addEventListener('click', () => {
-    location.reload();
+    // Send end chat message instead of reloading
+    send({ type: 'end_chat' });
 });
 
 messageInput.addEventListener('keypress', (e) => {
@@ -371,4 +413,18 @@ function showToast(message, type = 'info') {
             container.removeChild(toast);
         }, 300);
     }, 3000);
+}
+
+// Helper to generate color from string
+function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+        let value = (hash >> (i * 8)) & 0xFF;
+        color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
 }
